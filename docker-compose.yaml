@@ -1,0 +1,22 @@
+version: "3.4"
+
+services:
+  php:
+    container_name: hotel-availability-api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    working_dir: /var/www/hotel-availability-api
+    restart: unless-stopped
+    volumes:
+      - "./app:/var/www/hotel-availability-api"
+      # - "./php-fpm/php.ini:/usr/local/etc/php/8.1/php.ini"
+    ports:
+      - "8003:8000"
+    # env_file:
+    #   - ../../.env
+    deploy:
+      labels:
+        "app": "hotel-availability-api"
+        "env": "development"
+        "service": "php"
