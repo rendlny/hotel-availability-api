@@ -22,8 +22,10 @@ services:
         "app": "hotel-availability-api"
         "env": "development"
         "service": "php"
+    links:
+      - mysql
 
-  db:
+  mysql:
     container_name: db
     image: mysql:5.7
     environment:
@@ -33,7 +35,7 @@ services:
       - "./mysql/data:/var/lib/mysql"
       - "./mysql/my.cnf:/etc/my.cnf"
     ports:
-      - "3310:3306"
+      - "3306:3306"
     deploy:
       labels:
         "app": "hotel-availability-api"
@@ -45,3 +47,5 @@ services:
     image: adminer
     ports:
       - "8080:8080"
+    links:
+      - mysql
