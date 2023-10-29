@@ -11,3 +11,9 @@ A simplified PHP-based REST API service for a hotel availability system using th
 ### dev-dependencies
 
 - symfony/maker-bundle
+- phpunit/phpunit
+
+## Scripts
+
+- `composer make:entity` | calls Doctrine make:entity command
+- `composer make:migration` | calls Doctrine make:migration command

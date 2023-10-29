@@ -17,10 +17,6 @@
 !bin/symfony_requirements
 /vendor/
 
-# PHPUnit
-/app/phpunit.xml
-/phpunit.xml
-
 # Build data
 /build/
 
@@ -30,3 +26,8 @@
 # Backup entities generated with doctrine:generate:entities command
 **/Entity/*~
 
+
+###> phpunit/phpunit ###
+/phpunit.xml
+.phpunit.result.cache
+###< phpunit/phpunit ###
