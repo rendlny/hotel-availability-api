@@ -61,6 +61,12 @@
     "make:migration": [
       "@php bin/console make:migration"
     ],
+    "make:controller": [
+      "@php bin/console make:controller"
+    ],
+    "cache:clear": [
+      "@php bin/console cache:clear"
+    ],
     "phpunit": [
       "./vendor/bin/phpunit"
     ]

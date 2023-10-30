@@ -16,24 +16,24 @@ services:
     depends_on:
       - db
     env_file:
-      - ./app/.env.local
+      - ./.env
     deploy:
       labels:
         "app": "hotel-availability-api"
         "env": "development"
         "service": "php"
     links:
-      - mysql
+      - hotel-db
 
-  mysql:
-    container_name: db
+  hotel-db:
+    container_name: hotel-db
     image: mysql:5.7
     environment:
       MYSQL_DATABASE: "hotel"
       MYSQL_ROOT_PASSWORD: "1234"
     volumes:
       - "./mysql/data:/var/lib/mysql"
-      - "./mysql/my.cnf:/etc/my.cnf"
+      # - "./mysql/my.cnf:/etc/my.cnf"
     ports:
       - "3306:3306"
     deploy:
@@ -48,4 +48,4 @@ services:
     ports:
       - "8080:8080"
     links:
-      - mysql
+      - hotel-db

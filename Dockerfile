@@ -14,8 +14,6 @@ RUN apt-get update \
 #     && docker-php-ext-configure zip \
 #     && docker-php-ext-install zip
 
-
-
 WORKDIR /var/www/hotel-availability-api
 
 # Install Composer
@@ -30,4 +28,4 @@ RUN mv /root/.symfony5/bin/symfony /usr/local/bin/symfony
 ###< recipes ###
 
 # RUN composer install & start the server!
-CMD bash -c "composer install && symfony server:start"
+CMD bash -c "composer install && symfony server:stop && symfony server:start"
