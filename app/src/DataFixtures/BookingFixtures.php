@@ -8,18 +8,22 @@ use Doctrine\Common\DataFixtures\FixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 use App\DataFixtures\RoomFixtures;
 use DateTime;
+use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 
-class BookingFixtures extends Fixture implements FixtureInterface
+class BookingFixtures extends Fixture implements FixtureInterface, DependentFixtureInterface
 {
     public function load(ObjectManager $manager): void
     {
-        $booking = new Booking();
-        $booking->setPeopleCount(1);
-        $booking->setStartDate(new DateTime());
-        $booking->setEndDate(new DateTime());
+        for ($i = 1; $i = 5; $i++) {
+            $booking = new Booking();
+            $booking->setPeopleCount(1);
+            $booking->setStartDate(new DateTime());
+            $booking->setEndDate(new DateTime());
+            $booking->setRoom($this->getReference('room_1'));
 
-        $manager->persist($booking);
-        $manager->flush();
+            $manager->persist($booking);
+            $manager->flush();
+        }
     }
 
     /**

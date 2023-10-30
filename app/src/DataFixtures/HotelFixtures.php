@@ -20,7 +20,8 @@ class HotelFixtures extends Fixture implements FixtureInterface
             $manager->flush();
 
             // store reference to Hotel for Room relation to Hotel
-            // $this->addReference('hotel-' . $index, $hotel);
+            $this->addReference('hotel_' . $index, $hotel);
         }
     }
+
 }

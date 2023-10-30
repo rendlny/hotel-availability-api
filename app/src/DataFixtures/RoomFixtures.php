@@ -6,18 +6,24 @@ use App\Entity\Room;
 use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\FixtureInterface;
 use Doctrine\Persistence\ObjectManager;
+use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 
-class RoomFixtures extends Fixture implements FixtureInterface
+class RoomFixtures extends Fixture implements FixtureInterface, DependentFixtureInterface
 {
     public function load(ObjectManager $manager): void
     {
-        $room = new Room();
-        $room->setName('backend');
-        $room->setBedCount(1);
-        $room->setMaxPeople(1);
+        for ($i = 1; $i < 11; $i++) {
+            $room = new Room();
+            $room->setName('Room ' . $i);
+            $room->setBedCount(1);
+            $room->setMaxPeople(1);
+            $room->setHotel($this->getReference('hotel_1'));
 
-        $manager->persist($room);
-        $manager->flush();
+            $manager->persist($room);
+            $manager->flush();
+
+            $this->addReference('room_' . $i, $room);
+        }
     }
 
     /**
