@@ -29,8 +29,11 @@ A simplified PHP-based REST API service for a hotel availability system using th
 
 ## Tests
 
-PHPUnit
-
 ```
 composer phpunit
+composer phpstan
 ```
+
+## API Routes
+
+`api/hotel/availability`
