@@ -25,6 +25,7 @@ A simplified PHP-based REST API service for a hotel availability system using th
 - `composer cache:clear` | calls Doctrine cache:clear command
 - `composer fixtures:load` | calls Doctrine doctrine:fixtures:load command
 - `composer phpunit` | starts the phpunit tests
+- `composer phpstan` | starts the phpstan analysis
 
 ## Tests
 
