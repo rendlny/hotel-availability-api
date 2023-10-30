@@ -7,11 +7,13 @@ A simplified PHP-based REST API service for a hotel availability system using th
 - jms/serializer-bundle
 - friendsofsymfony/rest-bundle
 - symfony/orm-pack
+- symfony/validator
 
 ### dev-dependencies
 
 - symfony/maker-bundle
 - phpunit/phpunit
+- doctrine/doctrine-fixtures-bundle | For adding fake data
 
 ## Scripts
 
