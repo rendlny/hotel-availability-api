@@ -3,9 +3,13 @@
 namespace App\Services;
 
 use App\Entity\Hotel;
+use Carbon\Carbon;
 use DateTime;
+use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\Routing\Exception\MissingMandatoryParametersException;
+use Doctrine\ORM\EntityManagerInterface;
 
 class HotelService
 {
@@ -21,20 +25,63 @@ class HotelService
      * @param DateTime $checkOutDate
      * @return array<string, DateTime|int|string>
      */
-    public function checkHotelAvailability(array $hotelRequest): array
+    public function checkHotelAvailability(array $hotelRequest, EntityManagerInterface $entityManager): array
     {
-        // do availability checks
+        $queryBuilder = $entityManager->createQueryBuilder();
+        $query = $queryBuilder
+            ->select('r.id', 'r.name', 'r.bed_count as beds', 'r.max_people')
+            ->from('App\Entity\Room', 'r')
+            ->leftJoin('r.bookings', 'b', 'WITH', $queryBuilder->expr()->eq('r.id', 'b.room_id'))
+            ->where(
+                $queryBuilder->expr()->eq('r.hotel_id', ':hotelId'),
+                $queryBuilder->expr()->orX(
+                    $queryBuilder->expr()->isNull('b.id'),
+                    $queryBuilder->expr()->orX(
+                        $queryBuilder->expr()->gte(':userCheckIn', 'b.end_date'),
+                        $queryBuilder->expr()->lte(':userCheckOut', 'b.start_date')
+                    )
+                )
+            )
+            ->setParameter('hotelId', $hotelRequest['hotel_id'])
+            ->setParameter('userCheckIn', $hotelRequest['check_in'])
+            ->setParameter('userCheckOut', $hotelRequest['check_out'])
+            ->groupBy('r.id')
+            ->getQuery();
+
+        $availableRooms = $query->getResult();
+
         return [
             'hotel_id' => $hotelRequest['hotel_id'],
             'check_in' => $hotelRequest['check_in'],
             'check_out' => $hotelRequest['check_out'],
-            'status' => 'available',
-            //unavailable
+            'status' => count($availableRooms) ? 'available' : 'unavailable',
+            'rooms_available' => count($availableRooms),
+            'rooms' => $availableRooms
         ];
     }
 
-    public function validateHotelAvailabilityRequest(Request $request, $entityManager)
+    /**
+     * Validate Hotel Availability Request
+     * 
+     * Validating request attributes are the expected formats and
+     * returns an array of the validated attributes
+     * 
+     * @param Request $request
+     * @param EntityManagerInterface $entityManager
+     * @return array validated and cleaned request
+     * @throws MissingMandatoryParametersException
+     * @throws InvalidArgumentException
+     * @throws NotFoundHttpException
+     */
+    public function validateHotelAvailabilityRequest(Request $request, EntityManagerInterface $entityManager)
     {
+        /**
+         * NOTE:
+         * All of this validation could be applied through one request file in Laravel
+         * I tried creating the app/src/Requests/HotelAvailabilityRequest and 
+         * using the ValidatorInterface for a similar approach but I couldn't 
+         * get the errors to format nicely
+         */
         $hotelId = $request->request->get('hotel_id');
         $startDate = $request->request->get('check_in');
         $endDate = $request->request->get('check_out');
@@ -57,21 +104,44 @@ class HotelService
             throw new MissingMandatoryParametersException('check_out', $missingParams);
         }
 
-        //validate ID belongs to an existing hotel
+        if (!ctype_digit($hotelId)) {
+            throw new InvalidArgumentException('hotel_id must be an integer');
+        }
 
         $hotel = $entityManager->getRepository(Hotel::class)->find($hotelId);
         if (!$hotel) {
-            throw $this->createNotFoundException('No hotel found for id ' . $hotelId);
+            throw new NotFoundHttpException('No Hotel found for ID ' . $hotelId);
         }
 
-        //validate date formats
-        $startDate = \DateTime::createFromFormat('Y-m-d', $startDate);
-        $endDate = \DateTime::createFromFormat('Y-m-d', $endDate);
+        $startDate = $this->createDateWithFormatValidation($startDate, 'check_in');
+        $endDate = $this->createDateWithFormatValidation($endDate, 'check_out');
+
+        if ($startDate == $endDate) {
+            throw new InvalidArgumentException('check_in and check_out cannot be the same date');
+        }
+
+        if ($startDate > $endDate) {
+            throw new InvalidArgumentException('The check_in date cannot be ahead of the check_out date');
+        }
+
+        if ($startDate <= Carbon::now()->format('Y-m-d')) {
+            throw new InvalidArgumentException('The check_in date must be a date in the future');
+        }
 
         return [
             'hotel_id' => $hotelId,
-            'check_in' => $startDate,
-            'check_out' => $endDate,
+            'check_in' => $startDate->toDateString(),
+            'check_out' => $endDate->toDateString(),
         ];
+    }
+
+    function createDateWithFormatValidation($input, $name)
+    {
+        $date = Carbon::createFromFormat('Y-m-d', $input);
+        if (!$date) {
+            throw new InvalidArgumentException($name . ' must be date format YYYY-MM-DD');
+        }
+
+        return $date;
     }
 }
