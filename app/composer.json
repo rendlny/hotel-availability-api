@@ -73,7 +73,10 @@
       "@php bin/console cache:clear"
     ],
     "fixtures:load": [
-      "@php bin/console doctrine:fixtures:load"
+      "@php bin/console doctrine:database:drop --force",
+      "@php bin/console doctrine:database:create",
+      "@php bin/console doctrine:schema:update --force",
+      "@php bin/console doctrine:fixtures:load --append"
     ],
     "phpunit": [
       "./vendor/bin/phpunit"
@@ -93,6 +96,7 @@
   },
   "require-dev": {
     "doctrine/doctrine-fixtures-bundle": "^3.4",
+    "fakerphp/faker": "*",
     "phpstan/phpstan": "^1.10",
     "phpunit/phpunit": "^10",
     "symfony/maker-bundle": "^1.51"

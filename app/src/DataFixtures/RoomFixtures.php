@@ -7,22 +7,33 @@ use Doctrine\Bundle\FixturesBundle\Fixture;
 use Doctrine\Common\DataFixtures\FixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 use Doctrine\Common\DataFixtures\DependentFixtureInterface;
+use Faker\Factory;
 
 class RoomFixtures extends Fixture implements FixtureInterface, DependentFixtureInterface
 {
     public function load(ObjectManager $manager): void
     {
-        for ($i = 1; $i < 11; $i++) {
-            $room = new Room();
-            $room->setName('Room ' . $i);
-            $room->setBedCount(1);
-            $room->setMaxPeople(1);
-            $room->setHotel($this->getReference('hotel_1'));
+        $faker = Factory::create();
 
-            $manager->persist($room);
-            $manager->flush();
+        $reference = 1;
+        for ($hotel = 1; $hotel <= 4; $hotel++) {
+            for ($i = 1; $i <= 10; $i++) {
 
-            $this->addReference('room_' . $i, $room);
+                $beds = $faker->numberBetween(1, 4);
+                $maxPeople = $faker->numberBetween(1, $beds * 2);
+
+                $room = new Room();
+                $room->setName('Room ' . $i);
+                $room->setBedCount($beds);
+                $room->setMaxPeople($maxPeople);
+                $room->setHotel($this->getReference('hotel_' . $hotel));
+
+                $manager->persist($room);
+                $manager->flush();
+
+                $this->setReference('room_' . $reference, $room);
+                $reference++;
+            }
         }
     }
 

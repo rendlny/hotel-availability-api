@@ -29,6 +29,7 @@ composer phpstan
 - phpunit/phpunit
 - doctrine/doctrine-fixtures-bundle | For adding fake data
 - phpstan/phpstan | For bug checking
+- fakerphp/faker
 
 ## Scripts
 
