@@ -23,7 +23,7 @@ class HotelAvailabilityRequest
     #[Assert\Date(null, 'Invalid date, format must be YYY-MM-DD')]
     protected string $check_out;
 
-    public function __construct(int $hotel_id = null, string $check_in = null, string $check_out = null)
+    public function __construct(int $hotel_id, string $check_in, string $check_out)
     {
         $this->hotel_id = $hotel_id;
         $this->check_in = $check_in;

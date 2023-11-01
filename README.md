@@ -2,6 +2,7 @@
 
 A simplified PHP-based REST API service for a hotel availability system using the Symfony framework.
 
+The command `composer fixtures:load` will add fake data to the database. It will generate bookings between tomorrow and 2 months in the future. It will generate 3 hotels with 7 rooms each and 30 bookings per room.
 
 ## API Routes
 

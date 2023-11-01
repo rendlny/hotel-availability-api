@@ -73,6 +73,9 @@
       "@php bin/console cache:clear"
     ],
     "fixtures:load": [
+      "@php bin/console doctrine:fixtures:load --append"
+    ],
+    "fixtures:fresh": [
       "@php bin/console doctrine:database:drop --force",
       "@php bin/console doctrine:database:create",
       "@php bin/console doctrine:schema:update --force",

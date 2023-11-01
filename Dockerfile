@@ -28,4 +28,4 @@ RUN mv /root/.symfony5/bin/symfony /usr/local/bin/symfony
 ###< recipes ###
 
 # RUN composer install & load in data fixtues & start the server!
-CMD bash -c "composer install && composer fixtures:load && symfony server:start"
+CMD bash -c "composer install && composer fixtures:fresh && symfony server:start"

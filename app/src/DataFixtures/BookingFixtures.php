@@ -16,10 +16,19 @@ class BookingFixtures extends Fixture implements FixtureInterface, DependentFixt
     public function load(ObjectManager $manager): void
     {
         $faker = Factory::create();
-        for ($roomRef = 1; $roomRef <= 40; $roomRef++) {
-            for ($i = 1; $i <= 5; $i++) {
+        for ($roomRef = 1; $roomRef <= 21; $roomRef++) {
+            $booking = null;
 
-                $checkIn = $faker->dateTimeBetween("+1 day", "+2 months");
+            for ($i = 1; $i <= 30; $i++) {
+                if (isset($booking)) {
+                    //to prevent overlapping dates in faked data
+                    $min = Carbon::parse($booking->getEndDate());
+                    $max = Carbon::parse($booking->getEndDate())->addDays(3);
+                    $checkIn = $faker->dateTimeBetween($min, $max);
+                } else {
+                    $checkIn = $faker->dateTimeBetween("+1 day", "+3 days");
+                }
+
                 $leastCheckout = Carbon::parse($checkIn)->addDay();
                 $latestCheckout = Carbon::parse($checkIn)->addWeeks(2);
                 $checkOut = $faker->dateTimeBetween($leastCheckout, $latestCheckout);

@@ -16,8 +16,8 @@ class RoomFixtures extends Fixture implements FixtureInterface, DependentFixture
         $faker = Factory::create();
 
         $reference = 1;
-        for ($hotel = 1; $hotel <= 4; $hotel++) {
-            for ($i = 1; $i <= 10; $i++) {
+        for ($hotel = 1; $hotel <= 3; $hotel++) {
+            for ($i = 1; $i <= 7; $i++) {
 
                 $beds = $faker->numberBetween(1, 4);
                 $maxPeople = $faker->numberBetween(1, $beds * 2);

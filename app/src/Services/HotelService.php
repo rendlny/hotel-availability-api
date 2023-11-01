@@ -22,7 +22,7 @@ class HotelService
      * 
      * @param array<string, DateTime|int|string> $hotelRequest
      * @param EntityManagerInterface $entityManager
-     * @return array<string, DateTime|int|string>
+     * @return array<string, mixed>
      */
     public function checkHotelAvailability(array $hotelRequest, EntityManagerInterface $entityManager): array
     {
@@ -32,12 +32,14 @@ class HotelService
             ->from('App\Entity\Room', 'r')
             ->leftJoin('r.bookings', 'b', 'WITH', $queryBuilder->expr()->eq('r.id', 'b.room_id'))
             ->where(
-                $queryBuilder->expr()->eq('r.hotel_id', ':hotelId'),
-                $queryBuilder->expr()->orX(
-                    $queryBuilder->expr()->isNull('b.id'),
+                $queryBuilder->expr()->andX(
+                    $queryBuilder->expr()->eq('r.hotel_id', ':hotelId'),
                     $queryBuilder->expr()->orX(
-                        $queryBuilder->expr()->gte(':userCheckIn', 'b.end_date'),
-                        $queryBuilder->expr()->lte(':userCheckOut', 'b.start_date')
+                        $queryBuilder->expr()->isNull('b.id'),
+                        $queryBuilder->expr()->andX(
+                            $queryBuilder->expr()->gte(':userCheckIn', 'b.end_date'),
+                            $queryBuilder->expr()->lte(':userCheckOut', 'b.start_date')
+                        )
                     )
                 )
             )
@@ -46,6 +48,7 @@ class HotelService
             ->setParameter('userCheckOut', $hotelRequest['check_out'])
             ->groupBy('r.id')
             ->getQuery();
+
 
         $availableRooms = $query->getResult();
 
@@ -112,8 +115,8 @@ class HotelService
             throw new NotFoundHttpException('No Hotel found for ID ' . $hotelId);
         }
 
-        $startDate = $this->formatDateString($startDate, 'check_in');
-        $endDate = $this->formatDateString($endDate, 'check_out');
+        $startDate = $this->formatDateString((string) $startDate, 'check_in');
+        $endDate = $this->formatDateString((string) $endDate, 'check_out');
 
         if ($startDate == $endDate) {
             throw new InvalidArgumentException('check_in and check_out cannot be the same date');

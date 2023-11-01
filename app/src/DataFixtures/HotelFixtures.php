@@ -11,7 +11,7 @@ class HotelFixtures extends Fixture implements FixtureInterface
 {
     public function load(ObjectManager $manager): void
     {
-        $hotels = ['Clayton Hotel', 'Boyne Valley Hotel', 'Beresford Hotel', 'Jacobs Inn Dublin'];
+        $hotels = ['Boyne Valley Hotel', 'Beresford Hotel', 'Jacobs Inn Dublin'];
         foreach ($hotels as $index => $hotelName) {
             $hotel = new Hotel();
             $hotel->setName($hotelName);
