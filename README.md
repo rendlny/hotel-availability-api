@@ -2,12 +2,26 @@
 
 A simplified PHP-based REST API service for a hotel availability system using the Symfony framework.
 
+
+## API Routes
+
+`/api/v1/hotel/availability`
+
+## Tests
+Phpunit & phpstan tests can be ran on this project.
+```
+composer phpunit
+composer phpstan
+```
+
+
 ## Packages
 
 - jms/serializer-bundle
 - friendsofsymfony/rest-bundle
 - symfony/orm-pack
 - symfony/validator
+- nesbot/carbon
 
 ### dev-dependencies
 
@@ -27,13 +41,3 @@ A simplified PHP-based REST API service for a hotel availability system using th
 - `composer phpunit` | starts the phpunit tests
 - `composer phpstan` | starts the phpstan analysis
 
-## Tests
-
-```
-composer phpunit
-composer phpstan
-```
-
-## API Routes
-
-`api/hotel/availability`

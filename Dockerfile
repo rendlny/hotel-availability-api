@@ -28,4 +28,4 @@ RUN mv /root/.symfony5/bin/symfony /usr/local/bin/symfony
 ###< recipes ###
 
 # RUN composer install & start the server!
-CMD bash -c "composer install && symfony server:stop && symfony server:start"
+CMD bash -c "composer install && symfony server:start"
