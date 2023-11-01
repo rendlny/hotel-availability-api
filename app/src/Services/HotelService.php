@@ -20,9 +20,8 @@ class HotelService
      * returns an array which will include status of either
      * "available" or "unavailable"
      * 
-     * @param int $hotelId
-     * @param DateTime $checkInDate
-     * @param DateTime $checkOutDate
+     * @param array<string, DateTime|int|string> $hotelRequest
+     * @param EntityManagerInterface $entityManager
      * @return array<string, DateTime|int|string>
      */
     public function checkHotelAvailability(array $hotelRequest, EntityManagerInterface $entityManager): array
@@ -68,12 +67,12 @@ class HotelService
      * 
      * @param Request $request
      * @param EntityManagerInterface $entityManager
-     * @return array validated and cleaned request
+     * @return array<string, DateTime|int|string> validated and cleaned request
      * @throws MissingMandatoryParametersException
      * @throws InvalidArgumentException
      * @throws NotFoundHttpException
      */
-    public function validateHotelAvailabilityRequest(Request $request, EntityManagerInterface $entityManager)
+    public function validateHotelAvailabilityRequest(Request $request, EntityManagerInterface $entityManager): array
     {
         /**
          * NOTE:
@@ -113,8 +112,8 @@ class HotelService
             throw new NotFoundHttpException('No Hotel found for ID ' . $hotelId);
         }
 
-        $startDate = $this->createDateWithFormatValidation($startDate, 'check_in');
-        $endDate = $this->createDateWithFormatValidation($endDate, 'check_out');
+        $startDate = $this->formatDateString($startDate, 'check_in');
+        $endDate = $this->formatDateString($endDate, 'check_out');
 
         if ($startDate == $endDate) {
             throw new InvalidArgumentException('check_in and check_out cannot be the same date');
@@ -135,7 +134,14 @@ class HotelService
         ];
     }
 
-    function createDateWithFormatValidation($input, $name)
+    /**
+     * Format Date String
+     * @param string $input string date
+     * @param string $name name of field that will be shown in error if format fails
+     * @return Carbon Carbon format date
+     * @throws InvalidArgumentException
+     */
+    function formatDateString($input, $name): Carbon
     {
         $date = Carbon::createFromFormat('Y-m-d', $input);
         if (!$date) {
