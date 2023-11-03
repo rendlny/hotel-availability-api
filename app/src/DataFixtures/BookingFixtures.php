@@ -13,38 +13,42 @@ use Faker\Factory;
 
 class BookingFixtures extends Fixture implements FixtureInterface, DependentFixtureInterface
 {
+    public $faker;
+
     public function load(ObjectManager $manager): void
     {
-        $faker = Factory::create();
+        $this->faker = Factory::create();
+
         for ($roomRef = 1; $roomRef <= 21; $roomRef++) {
             $booking = null;
 
-            for ($i = 1; $i <= 30; $i++) {
-                if (isset($booking)) {
-                    //to prevent overlapping dates in faked data
-                    $min = Carbon::parse($booking->getEndDate());
-                    $max = Carbon::parse($booking->getEndDate())->addDays(3);
-                    $checkIn = $faker->dateTimeBetween($min, $max);
-                } else {
-                    $checkIn = $faker->dateTimeBetween("+1 day", "+3 days");
-                }
+            // for ($i = 1; $i <= 30; $i++) {
+            //     if (isset($booking)) {
+            //         //to prevent overlapping dates in faked data
+            //         $min = Carbon::parse($booking->getEndDate());
+            //         $max = Carbon::parse($booking->getEndDate())->addDays(3);
+            //         $checkIn = $this->faker->dateTimeBetween($min, $max);
+            //     } else {
+            //         $checkIn = $this->faker->dateTimeBetween("+1 day", "+3 days");
+            //     }
 
-                $leastCheckout = Carbon::parse($checkIn)->addDay();
-                $latestCheckout = Carbon::parse($checkIn)->addWeeks(2);
-                $checkOut = $faker->dateTimeBetween($leastCheckout, $latestCheckout);
+            //     $leastCheckout = Carbon::parse($checkIn)->addDay();
+            //     $latestCheckout = Carbon::parse($checkIn)->addWeeks(2);
+            //     $checkOut = $this->faker->dateTimeBetween($leastCheckout, $latestCheckout);
 
-                $booking = new Booking();
-                $booking->setStartDate($checkIn);
-                $booking->setEndDate($checkOut);
-                $booking->setRoom($this->getReference('room_' . $roomRef));
+            //     $booking = $this->generateBooking($roomRef, $checkIn, $checkOut);
 
-                $room = $booking->getRoom();
-                $peopleCount = $faker->numberBetween($room->getBedCount(), $room->getMaxPeople());
-                $booking->setPeopleCount($peopleCount);
+            //     $manager->persist($booking);
+            //     $manager->flush();
+            // }
 
-                $manager->persist($booking);
-                $manager->flush();
-            }
+            // MAKE ALL ROOMS BOOKED OUT FOR 01-12-2023 -> 10-12-2023
+            // TO BE ABLE TO TEST FOR UNAVAILABLE
+            $checkIn = Carbon::parse('2023/12/01');
+            $checkOut = Carbon::parse('2023/12/10');
+            $booking = $this->generateBooking($roomRef, $checkIn, $checkOut);
+            $manager->persist($booking);
+            $manager->flush();
         }
     }
 
@@ -56,5 +60,19 @@ class BookingFixtures extends Fixture implements FixtureInterface, DependentFixt
         return [
             RoomFixtures::class,
         ];
+    }
+
+    public function generateBooking($roomRef, $checkIn, $checkOut)
+    {
+        $booking = new Booking();
+        $booking->setStartDate($checkIn);
+        $booking->setEndDate($checkOut);
+        $booking->setRoom($this->getReference('room_' . $roomRef));
+
+        $room = $booking->getRoom();
+        $peopleCount = $this->faker->numberBetween($room->getBedCount(), $room->getMaxPeople());
+        $booking->setPeopleCount($peopleCount);
+
+        return $booking;
     }
 }
