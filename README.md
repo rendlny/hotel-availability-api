@@ -10,12 +10,12 @@ To be able to test, it will generate bookings for all rooms for 2023-12-01 until
 `/api/v1/hotel/availability`
 
 ## Tests
-Phpunit & phpstan tests can be ran on this project.
+Phpunit, phpstan & behat tests can be ran on this project.
 ```
 composer phpunit
 composer phpstan
+composer behat
 ```
-
 
 ## Packages
 
@@ -31,7 +31,8 @@ composer phpstan
 - phpunit/phpunit
 - doctrine/doctrine-fixtures-bundle | For adding fake data
 - phpstan/phpstan | For bug checking
-- fakerphp/faker
+- behat/behat
+- friends-of-behat/symfony-extension
 
 ## Scripts
 
