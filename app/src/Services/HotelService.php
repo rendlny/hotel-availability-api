@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Entity\Hotel;
 use Carbon\Carbon;
+use Carbon\Exceptions\InvalidFormatException;
 use DateTime;
 use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Request;
@@ -174,11 +175,11 @@ class HotelService
      */
     function formatDateString($input, $name): Carbon
     {
-        $date = Carbon::createFromFormat('Y-m-d', $input);
-        if (!$date) {
+        try {
+            $date = Carbon::createFromFormat('Y-m-d', $input);
+            return $date;
+        } catch (InvalidFormatException $e) {
             throw new InvalidArgumentException($name . ' must be date format YYYY-MM-DD');
         }
-
-        return $date;
     }
 }

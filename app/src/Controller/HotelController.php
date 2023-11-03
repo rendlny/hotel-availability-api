@@ -36,7 +36,7 @@ class HotelController extends AbstractController
             return $this->json([
                 'error' => get_class($e),
                 'message' => $e->getMessage()
-            ], 404);
+            ], 422);
         }
     }
 }
