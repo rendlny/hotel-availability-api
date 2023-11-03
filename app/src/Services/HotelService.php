@@ -27,28 +27,56 @@ class HotelService
     public function checkHotelAvailability(array $hotelRequest, EntityManagerInterface $entityManager): array
     {
         $queryBuilder = $entityManager->createQueryBuilder();
-        $query = $queryBuilder
-            ->select('r.id', 'r.name', 'r.bed_count as beds', 'r.max_people')
-            ->from('App\Entity\Room', 'r')
-            ->leftJoin('r.bookings', 'b', 'WITH', $queryBuilder->expr()->eq('r.id', 'b.room_id'))
+
+        $bookedOutRooms = $queryBuilder
+            ->select('b.room_id')
+            ->from('App\Entity\Booking', 'b')
+            ->leftJoin('b.room', 'r', 'WITH', $queryBuilder->expr()->eq('r.id', 'b.room_id'))
             ->where(
                 $queryBuilder->expr()->andX(
                     $queryBuilder->expr()->eq('r.hotel_id', ':hotelId'),
-                    $queryBuilder->expr()->orX(
-                        $queryBuilder->expr()->isNull('b.id'),
-                        $queryBuilder->expr()->andX(
-                            $queryBuilder->expr()->gte(':userCheckIn', 'b.end_date'),
-                            $queryBuilder->expr()->lte(':userCheckOut', 'b.start_date')
-                        )
+                    $queryBuilder->expr()->andX(
+                        $queryBuilder->expr()->lt(':userCheckIn', 'b.end_date'),
+                        $queryBuilder->expr()->gte(':userCheckOut', 'b.start_date')
                     )
+
                 )
             )
             ->setParameter('hotelId', $hotelRequest['hotel_id'])
             ->setParameter('userCheckIn', $hotelRequest['check_in'])
             ->setParameter('userCheckOut', $hotelRequest['check_out'])
-            ->groupBy('r.id')
-            ->getQuery();
+            ->groupBy('b.room_id')
+            ->getQuery()
+            ->getResult();
 
+        $bookedOutRoomIds = array_column($bookedOutRooms, 'room_id');
+
+        $queryBuilder = $entityManager->createQueryBuilder();
+        if (count($bookedOutRoomIds) == 0) {
+            $query = $queryBuilder
+                ->select('r.id', 'r.name', 'r.bed_count as beds', 'r.max_people')
+                ->from('App\Entity\Room', 'r')
+                ->where(
+                    $queryBuilder->expr()->andX(
+                        $queryBuilder->expr()->eq('r.hotel_id', ':hotelId')
+                    )
+                )
+                ->setParameter('hotelId', $hotelRequest['hotel_id'])
+                ->getQuery();
+        } else {
+            $query = $queryBuilder
+                ->select('r.id', 'r.name', 'r.bed_count as beds', 'r.max_people')
+                ->from('App\Entity\Room', 'r')
+                ->where(
+                    $queryBuilder->expr()->andX(
+                        $queryBuilder->expr()->notIn('r.id', ':bookedOutRoomIds'),
+                        $queryBuilder->expr()->eq('r.hotel_id', ':hotelId')
+                    )
+                )
+                ->setParameter('hotelId', $hotelRequest['hotel_id'])
+                ->setParameter('bookedOutRoomIds', $bookedOutRoomIds)
+                ->getQuery();
+        }
 
         $availableRooms = $query->getResult();
 
@@ -58,7 +86,7 @@ class HotelService
             'check_out' => $hotelRequest['check_out'],
             'status' => count($availableRooms) ? 'available' : 'unavailable',
             'rooms_available' => count($availableRooms),
-            'rooms' => $availableRooms
+            'rooms' => $availableRooms,
         ];
     }
 
