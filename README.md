@@ -5,9 +5,21 @@ A simplified PHP-based REST API service for a hotel availability system using th
 The command `composer fixtures:load` will add fake data to the database. ~~It will generate bookings between tomorrow and 2 months in the future. It will generate 3 hotels with 7 rooms each and 30 bookings per room.~~
 To be able to test, it will generate bookings for all rooms for 2023-12-01 until 2023-12-10, so that no rooms are available during those dates.
 
+To startup the application use `docker compose up`
+
 ## API Routes
 
 `/api/v1/hotel/availability`
+
+Which accepts the following JSON / form data
+
+```
+{
+    "hotel_id": 1,
+    "check_in": "2023-12-10", //Date in the format YYYY-MM-DD
+    "check_out": "2023-12-15", //Date in the format YYYY-MM-DD
+}
+```
 
 ## Tests
 Phpunit, phpstan & behat tests can be ran on this project.
